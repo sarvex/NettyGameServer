@@ -12,8 +12,7 @@ FORMAT_CHARS = {
 }
 
 def format_str(s):
-	ret = []
-	for ch in s: ret.append(FORMAT_CHARS.get(ch, ch))
+	ret = [FORMAT_CHARS.get(ch, ch) for ch in s]
 	return "".join(ret)
 
 
@@ -40,7 +39,7 @@ class JsonWriter(BaseWriter):
 
 		indent = 1
 
-		self._output(indent, '"%s" : ' % name)
+		self._output(indent, f'"{name}" : ')
 		self.write(value, indent, max_indent)
 
 		self.flush()
@@ -64,12 +63,12 @@ class JsonWriter(BaseWriter):
 			output("%g" % value)
 
 		elif tp == str:
-			output('"%s"' % format_str(value))
+			output(f'"{format_str(value)}"')
 
 		elif tp == unicode:
-			output('"%s"' % format_str(value.encode("utf-8")))
+			output(f'"{format_str(value.encode("utf-8"))}"')
 
-		elif tp == tuple or tp == list:
+		elif tp in [tuple, list]:
 			output("[")
 			indent += 1
 			if indent <= max_indent: output("\n")
@@ -112,6 +111,6 @@ class JsonWriter(BaseWriter):
 			indent -= 1
 
 		else:
-			raise TypeError, "unsupported type %s" % (str(tp), )
+			raise (TypeError, f"unsupported type {str(tp)}")
 
 		return

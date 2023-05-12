@@ -75,7 +75,7 @@ def _install_in_path():
 
 def sudo(cmd):
 	if sys.platform != "win32":
-		cmd = "sudo " + cmd
+		cmd = f"sudo {cmd}"
 
 	#print cmd
 	os.system(cmd)

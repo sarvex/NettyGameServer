@@ -47,7 +47,7 @@ class ConfigExporter(BaseExporter):
 	def find_converter(self, name):
 		converter = self.converter_modules.get(name)
 		if converter is None:
-			full_name = xlsconfig.CONVERTER_ALIAS + "." + name
+			full_name = f"{xlsconfig.CONVERTER_ALIAS}.{name}"
 			converter = util.import_file(full_name)
 			converter._name = name
 			self.converter_modules[name] = converter

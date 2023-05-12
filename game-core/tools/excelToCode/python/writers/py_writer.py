@@ -57,10 +57,10 @@ class PyWriter(BaseWriter):
 			output("%g" % (value, ))
 
 		elif tp == str:
-			output('"%s"' %(value, ))
+			output(f'"{value}"')
 
 		elif tp == unicode:
-			output('"%s"' % (value.encode("utf-8"), ))
+			output(f'"{value.encode("utf-8")}"')
 
 		elif tp == tuple:
 			output("(")
@@ -100,6 +100,6 @@ class PyWriter(BaseWriter):
 			output("}")
 
 		else:
-			raise TypeError, "unsupported type %s" % (str(tp), )
+			raise (TypeError, f"unsupported type {str(tp)}")
 
 		return

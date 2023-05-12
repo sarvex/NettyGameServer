@@ -11,17 +11,15 @@ def format_number_with_xlrd(f, cell, wb):
 	fmt_key = xf.format_key
 	fmt = wb.format_map[fmt_key]
 	s_fmt = fmt.format_str
-	a_fmt = numfmt.extract_number_format(s_fmt)
-	if a_fmt:
-		s_f = numfmt.format_number(f, a_fmt, ',', '.')
-	else:
-		s_f = "%g" % f
-	return s_f
+	return (
+		numfmt.format_number(f, a_fmt, ',', '.')
+		if (a_fmt := numfmt.extract_number_format(s_fmt))
+		else "%g" % f
+	)
 
 def format_number_with_openpyxl(f, cell, wb):
 	s_fmt = cell.number_format
-	a_fmt = numfmt.extract_number_format(s_fmt)
-	if a_fmt:
+	if a_fmt := numfmt.extract_number_format(s_fmt):
 		return numfmt.format_number(f, a_fmt, ',', '.')
 	else:
 		return "%g" % f
@@ -93,14 +91,14 @@ class BaseParser(object):
 
 		if value is None:
 			value = ""
-		elif tp == float or tp == long or tp == int:
+		elif tp in [float, long, int]:
 			value = format_number(value, cell, self.workbook)
 		elif tp == unicode:
 			value = value.encode("utf-8").strip()
 		elif tp == str:
 			value = value.strip()
 		else:
-			msg = "不支持的数据类型: %s -> '%s'" % (type(value), value)
+			msg = f"不支持的数据类型: {type(value)} -> '{value}'"
 			raise ValueError, msg
 
 		return value
@@ -169,18 +167,18 @@ class BaseParser(object):
 
 	def add_row(self, current_row_data):
 		if self.key_name not in current_row_data:
-			raise ValueError, "没有找到Key'%s'" % (self.key_name, )
+			raise (ValueError, f"没有找到Key'{self.key_name}'")
 
 		key_value = current_row_data.pop(self.key_name)
-		
+
 		if self.is_multi_key:
 			row = self.sheet.setdefault(key_value, [])
 			row.append(current_row_data)
 
-		else:
-			if key_value in self.sheet:
-				raise ValueError, "Key'%s'重复" % key_value
+		elif key_value in self.sheet:
+			raise (ValueError, f"Key'{key_value}'重复")
 
+		else:
 			self.sheet[key_value] = current_row_data
 
 	def parse_header(self, rows):

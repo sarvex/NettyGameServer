@@ -40,10 +40,7 @@ class NewConverter(object):
 		return True
 
 	def if_info_equal(self, info1, info2):
-		for i in xrange(1, 4):
-			if info1[i] != info2[i]:
-				return False
-		return True
+		return all(info1[i] == info2[i] for i in xrange(1, 4))
 
 class BaseExporter(object):
 	def __init__(self, input_path, exts):
@@ -83,9 +80,8 @@ class BaseExporter(object):
 		if converter is None:
 			converter = NewConverter(converter_name, module_info["sheet_types"]["main_sheet"], module_info["arguments"], infile)
 			self.configures[converter_name] = converter
-		else:
-			if not converter.compare_types(module_info["sheet_types"]["main_sheet"], infile):
-				return False
+		elif not converter.compare_types(module_info["sheet_types"]["main_sheet"], infile):
+			return False
 
 		# 真实的转换器
 		data_module.converter = self.find_converter(converter_name)
@@ -104,7 +100,7 @@ class BaseExporter(object):
 		}
 
 		util.ensure_package_exist(xlsconfig.TEMP_PATH, outfile)
-		output_path = os.path.join(xlsconfig.TEMP_PATH, outfile + ".py")
+		output_path = os.path.join(xlsconfig.TEMP_PATH, f"{outfile}.py")
 
 		wt = writers.PyWriter(output_path, None)
 		wt.begin_write()
@@ -245,9 +241,10 @@ class BaseExporter(object):
 		wt = writers.PyWriter(output_path, None)
 		wt.begin_write()
 
-		sheet = {}
-		for k, v in self.configures.iteritems():
-			sheet[k] = {"types" : v.types, "arguments" : v.arguments }
+		sheet = {
+			k: {"types": v.types, "arguments": v.arguments}
+			for k, v in self.configures.iteritems()
+		}
 		wt.write_sheet("configures", sheet)
 
 		wt.end_write()

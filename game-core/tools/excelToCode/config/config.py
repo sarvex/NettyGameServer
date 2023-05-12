@@ -52,18 +52,15 @@ DATA_WRITERS = [
 
 # 后处理器
 POSTPROCESSORS = [
-	# 生成Java文件列表。Json格式
 	{
-		"class" : "JavaFileListProcessor",
-		"file_path": DEFAULT_DICT_PATH + "/dict.wg",
-		"class_name_format" : "Dict%s",
-		#		"enum_name_format" : "Files.%s"
+		"class": "JavaFileListProcessor",
+		"file_path": f"{DEFAULT_DICT_PATH}/dict.wg",
+		"class_name_format": "Dict%s",
 	},
-	# 生成Java枚举类，列举了所有文件。
 	{
-		"class" : "JavaFileEnumProcessor",
-		"file_path": DEFAULT_JAVA_PATH + "/DictEnum.java"
-	}
+		"class": "JavaFileEnumProcessor",
+		"file_path": f"{DEFAULT_JAVA_PATH}/DictEnum.java",
+	},
 ]
 
 # 自定义的初始化函数

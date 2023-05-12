@@ -5,19 +5,19 @@ def use_origin(arg): return arg
 def use_empty(arg): return None
 
 def to_bool(arg):
-	if isinstance(arg, unicode) or isinstance(arg, str):
-		if arg == "true": return True
-		elif arg == "false": return False
-		return bool(to_int(arg))
-	else:
+	if not isinstance(arg, (unicode, str)):
 		return bool(arg)
+	if arg == "false":
+		return False
+	elif arg == "true":
+		if arg == "true": return True
+	return bool(to_int(arg))
 
 def to_int(arg):
 	return int(to_float(arg))
 
 def to_float(arg):
-	if arg == "": return 0
-	return float(arg)
+	return 0 if arg == "" else float(arg)
 
 def to_str(value):
 	if type(value) == unicode:
@@ -27,9 +27,9 @@ def to_str(value):
 	return value
 
 def to_list(arg, converter=None):
-	ret = eval("[%s]" % arg)
+	ret = eval(f"[{arg}]")
 	if not isinstance(ret, list):
-		raise ValueError, "list type needed, '%s' was given" % arg
+		raise (ValueError, f"list type needed, '{arg}' was given")
 
 	if converter is not None:
 		for i, v in enumerate(ret):
@@ -57,7 +57,7 @@ def to_dict2(args, func = to_float_list):
 
 		values = func(st)
 		if len(values) != 2:
-			raise ValueError, "invalid fontal %s" % args
+			raise (ValueError, f"invalid fontal {args}")
 
 		k, v = values
 		ret[k] = v
@@ -66,13 +66,13 @@ def to_dict2(args, func = to_float_list):
 def to_point(arg):
 	lst = to_float_list(arg)
 	if len(lst) != 2:
-		raise ValueError, "point type need 2 float elemnt, '%s' was given" % (arg, )
+		raise (ValueError, f"point type need 2 float elemnt, '{arg}' was given")
 	return tuple(lst)
 
 def to_point3(arg):
 	lst = to_float_list(arg)
 	if len(lst) != 3:
-		raise ValueError, "point3 type need 3 float element, '%s' was given" % (arg, )
+		raise (ValueError, f"point3 type need 3 float element, '{arg}' was given")
 	return tuple(lst)
 
 def to_point_list(args):
@@ -107,7 +107,7 @@ def to_string_list(args):
 		if len(image) > 0:
 			ret.append(image)
 
-	return ret if len(ret) > 0 else None
+	return ret if ret else None
 
 def to_float_group(args):
 	ret = []
@@ -123,10 +123,7 @@ def to_float_group(args):
 
 def to_images(args):
 	ret = to_string_list(args)
-	if ret != None:
-		return [x + ".png" for x in ret]
-		
-	return ret
+	return [f"{x}.png" for x in ret] if ret != None else ret
 
 def to_float_list_2(args):
 	if type(args) != unicode: return None
@@ -150,16 +147,15 @@ def to_string_list_2(args):
 		if len(image) > 0:
 			ret.append(image)
 
-	return ret if len(ret) > 0 else None
+	return ret if ret else None
 
 def to_text(args):
 	return args.replace('\n','\\n')
 
 def to_amstr(args):
-	return args + ".am"
+	return f"{args}.am"
 
 def type2string(tp):
-	if tp == int or tp == long or tp == to_int: return "int"
-	if tp == float or tp == to_float: return "float"
-	if tp == to_bool or tp == bool: return "byte"
-	return "String"
+	if tp in [int, long, to_int]: return "int"
+	if tp in [float, to_float]: return "float"
+	return "byte" if tp in [to_bool, bool] else "String"

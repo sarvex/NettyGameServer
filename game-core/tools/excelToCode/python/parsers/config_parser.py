@@ -23,10 +23,7 @@ class ConfigParser(BaseParser):
 		self.do_parse()
 
 	def map_config_array_to_dict(self):
-		ret = {}
-		for info in self.config:
-			header = info[0]
-			ret[header] = info
+		ret = {info[0]: info for info in self.config}
 		self.header_2_config = ret
 
 	def parse_header(self, rows):

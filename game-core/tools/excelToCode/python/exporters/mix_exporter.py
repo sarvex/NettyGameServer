@@ -66,7 +66,7 @@ class MixExporter(DirectExporter):
 	def find_converter(self, name):
 		converter = self.converter_modules.get(name)
 		if converter is None:
-			full_name = xlsconfig.CONVERTER_ALIAS + "." + name
+			full_name = f"{xlsconfig.CONVERTER_ALIAS}.{name}"
 			full_path = os.path.join(xlsconfig.CONVERTER_PATH, full_name.replace(".", '/') + ".py")
 			if os.path.exists(full_path):
 				converter = util.import_file(full_name)

@@ -72,12 +72,12 @@ class LuaWriter(BaseWriter):
 			output("%g" % (value, ))
 
 		elif tp == str:
-			output('"%s"' %(value, ))
+			output(f'"{value}"')
 
 		elif tp == unicode:
-			output('"%s"' % (value.encode("utf-8"), ))
+			output(f'"{value.encode("utf-8")}"')
 
-		elif tp == tuple or tp == list or tp == set or tp == frozenset:
+		elif tp in [tuple, list, set, frozenset]:
 			output("{")
 			indent += 1
 			for v in value:
@@ -109,7 +109,7 @@ class LuaWriter(BaseWriter):
 			output("}")
 
 		else:
-			raise TypeError, "unsupported type %s" % (str(tp), )
+			raise (TypeError, f"unsupported type {str(tp)}")
 
 		return
 

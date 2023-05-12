@@ -6,9 +6,7 @@ import xlsconfig
 
 def to_utf8(s):
 	tp = type(s)
-	if tp == unicode: return s.encode("utf-8")
-	if tp == str: return s
-	return s
+	return s.encode("utf-8") if tp == unicode else s
 
 def int_to_base26(value):
 	asciiA = ord('A')
@@ -18,7 +16,7 @@ def int_to_base26(value):
 	ret = ""
 	while value != 0:
 		mod = value % 26
-		value = value // 26
+		value //= 26
 		if mod == 0:
 			mod = 26
 			value -= 1
@@ -133,11 +131,7 @@ def gather_all_files(path, exts):
 # 与shutil.copytree不同之处在于，如果目标文件存在，会直接进行覆盖，而不是抛异常。
 def copytree(src, dst, symlinks=False, ignore=None):
 	names = os.listdir(src)
-	if ignore is not None:
-		ignored_names = ignore(src, names)
-	else:
-		ignored_names = set()
-
+	ignored_names = ignore(src, names) if ignore is not None else set()
 	if not os.path.isdir(dst):
 		os.makedirs(dst)
 

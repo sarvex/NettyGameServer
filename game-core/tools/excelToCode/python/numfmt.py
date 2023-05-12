@@ -6,7 +6,7 @@ def extract_number_format(s_fmt):
   # If don't know what does the format "Standard/GENERAL" mean.
   # As far as I understand, the presentation can differ depending
   # on the locale and user settings. Here is a my proposal.
-  if 'GENERAL' == s_fmt:
+  if s_fmt == 'GENERAL':
     return (None, '#', '#')
   # Find the number-part
   m = re_maybe_numfmt.search(s_fmt)
@@ -53,17 +53,17 @@ def format_number(f, a_fmt, div1000, div1):
   # Float to string with a minimal precision after comma.
   # Filling the integer part with '0' at left doesn't work for %f.
   precision  = len(part_below1) if part_below1 else 0
-  s_fmt = '%.' + str(precision) + 'f'
+  s_fmt = f'%.{precision}f'
   s_f = s_fmt % f
   # Postprocessing. Drop insignificant zeros.
   while precision:
-    if '0' == part_below1[precision-1]:
+    if part_below1[precision - 1] == '0':
       break
-    if '0' != s_f[-1]:
+    if s_f[-1] != '0':
       break
     s_f = s_f[:-1]
-    precision = precision - 1
-  if '.' == s_f[-1]:
+    precision -= 1
+  if s_f[-1] == '.':
     s_f = s_f[:-1]
     precision = 0
   # Add significant zeros
@@ -77,20 +77,13 @@ def format_number(f, a_fmt, div1000, div1):
     if need_len > len(s_f):
       s_f = s_f.rjust(need_len, '0')
   # Put dots and commas
-  if '.' != div1:
+  if div1 != '.':
     s_f = s_f.replace('.', div1)
   if part_above1000:
-    if precision:
-      div_pos = len(s_f) - precision - 4
-    else:
-      div_pos = len(s_f) - 3
+    div_pos = len(s_f) - precision - 4 if precision else len(s_f) - 3
     while div_pos > 0:
       s_f = s_f[:div_pos] + div1000 + s_f[div_pos:]
       div_pos -= 3
-  # Add negative sign
   if is_negative:
-    if '0' == s_f[0]:
-      s_f = '-' + s_f[1:]
-    else:
-      s_f = '-' + s_f
+    s_f = f'-{s_f[1:]}' if s_f[0] == '0' else f'-{s_f}'
   return s_f

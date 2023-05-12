@@ -6,15 +6,12 @@ from base_code_gen import BaseCodeGen
 from tps import tp0
 
 def type2string(tp):
-	if tp == int or tp == tp0.to_int: return "int"
+	if tp in [int, tp0.to_int]: return "int"
 	if tp == long: return "long"
-	if tp == float or tp == tp0.to_float: return "float"
-	if tp == bool or tp == tp0.to_bool: return "boolean"
-	return "String"
+	if tp in [float, tp0.to_float]: return "float"
+	return "boolean" if tp in [bool, tp0.to_bool] else "String"
 
-BUILTIN_TYPES = set((
-	"int", "long", "float", "boolean", "String",
-))
+BUILTIN_TYPES = {"int", "long", "float", "boolean", "String"}
 
 INDENTS = [" " * (i * 4) for i in xrange(10)]
 
@@ -24,11 +21,10 @@ class JavaCodeGen(BaseCodeGen):
 		src_name = self.module_name.split('.')[-1]
 		self.class_name = util.to_class_name(src_name)
 
-		name_format = util.to_utf8(self.generator_info.get("name_format"))
-		if name_format:
+		if name_format := util.to_utf8(self.generator_info.get("name_format")):
 			self.class_name = name_format % self.class_name
 
-		self.file_path = os.path.join(self.output_path, self.class_name + ".java")
+		self.file_path = os.path.join(self.output_path, f"{self.class_name}.java")
 
 		path = os.path.dirname(self.file_path)
 		util.safe_makedirs(path)
@@ -37,14 +33,13 @@ class JavaCodeGen(BaseCodeGen):
 		self.write_line()
 
 		package = util.to_utf8(self.generator_info.get("package", xlsconfig.DEFAULT_JAVA_PACKAGE))
-		
-		self.write_line(0, "package %s;" % package)
+
+		self.write_line(0, f"package {package};")
 		self.write_line()
 
-		imports = self.generator_info.get("imports")
-		if imports:
+		if imports := self.generator_info.get("imports"):
 			for imp in imports:
-				self.write_line(0, "import %s;" % imp.encode("utf-8"))
+				self.write_line(0, f'import {imp.encode("utf-8")};')
 			self.write_line()
 
 		items = self.collect_members(self.module)
@@ -66,13 +61,11 @@ class JavaCodeGen(BaseCodeGen):
 
 	def gen_class(self, items, indent):
 		self.write(indent, "public class ", self.class_name)
-		
-		base = self.generator_info.get("base")
-		if base: self.output(" extends ", base.encode("utf-8"))
 
-		interface = self.generator_info.get("interface")
-		if interface: self.output(" implements ", interface.encode("utf-8"))
-
+		if base := self.generator_info.get("base"):
+			self.output(" extends ", base.encode("utf-8"))
+		if interface := self.generator_info.get("interface"):
+			self.output(" implements ", interface.encode("utf-8"))
 		self.output(" {")
 		self.write_line()
 		self.write_line()
@@ -90,7 +83,9 @@ class JavaCodeGen(BaseCodeGen):
 		for item in items:
 			name, comment, type, _ = item
 
-			self.write_line(indent, "private %-10s %-10s // %s" % (type, name + ";", comment))
+			self.write_line(
+				indent, "private %-10s %-10s // %s" % (type, f"{name};", comment)
+			)
 
 		self.write_line()
 
@@ -101,11 +96,11 @@ class JavaCodeGen(BaseCodeGen):
 			java_name = util.to_class_name(name)
 
 			self.write_line(indent, "public %s get%s() {" % (type, java_name))
-			self.write_line(indent + 1, "return %s;" % name)
+			self.write_line(indent + 1, f"return {name};")
 			self.write_line(indent, "}")
 
 			self.write_line(indent, "public void set%s(%s %s) {" % (java_name, type, name))
-			self.write_line(indent + 1, "this.%s = %s;" % (name, name))
+			self.write_line(indent + 1, f"this.{name} = {name};")
 			self.write_line(indent, "}")
 
 			self.write_line()
